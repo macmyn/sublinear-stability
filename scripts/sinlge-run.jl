@@ -44,37 +44,37 @@ plot(P[:trajectory],
     c=9
 ))
 
-#= Density distribution =#
-histogram([(P[:equilibrium])],
-    normalize=true,
-    alpha=0.5,
-    color=:gray,
-    ylabel=L"P(B^*)",
-    xlabel=L"B^*",
-    label=false,
-    grid=false,
-)
+# #= Density distribution =#
+# histogram([(P[:equilibrium])],
+#     normalize=true,
+#     alpha=0.5,
+#     color=:gray,
+#     ylabel=L"P(B^*)",
+#     xlabel=L"B^*",
+#     label=false,
+#     grid=false,
+# )
 
 #= cavity solution =#
-ϕ, e1, e2 = Cavity(P, n_max=100)
-X = [n for n in 0.95*minimum(P[:equilibrium]):0.0001:1.05*maximum(P[:equilibrium])]
-plot!(X, [P_n(n, e1, e2, P) for n in X],
-    labels="cavity",
-    alpha=1,
-    linewidth=2,
-    linecolor=:black,
-)
+# ϕ, e1, e2 = Cavity(P, n_max=100)
+# X = [n for n in 0.95*minimum(P[:equilibrium]):0.0001:1.05*maximum(P[:equilibrium])]
+# plot!(X, [P_n(n, e1, e2, P) for n in X],
+#     labels="cavity",
+#     alpha=1,
+#     linewidth=2,
+#     linecolor=:black,
+# )
 
 #= cavity solution with gaussian approximation =#
-X = [n for n in 0.5*minimum(P[:equilibrium]):0.0001:1.5*maximum(P[:equilibrium])]
-plot!(X, [pdf(last(P_n_gauss(P)), n) for n in X],
-    labels="cavity - gaussian",
-    linewidth=2,
-    alpha=1,
-    linecolor=:black,
-    linestyle=:dash,
-    legend=:bottomleft
-)
+# X = [n for n in 0.5*minimum(P[:equilibrium]):0.0001:1.5*maximum(P[:equilibrium])]
+# plot!(X, [pdf(last(P_n_gauss(P)), n) for n in X],
+#     labels="cavity - gaussian",
+#     linewidth=2,
+#     alpha=1,
+#     linecolor=:black,
+#     linestyle=:dash,
+#     legend=:bottomleft
+# )
 
-#= eigenvalues spectrum =#
+# #= eigenvalues spectrum =#
 boundary(P)

@@ -1,6 +1,6 @@
 #= Plots of the spectrum of the community matrix and countour lines are defined. =#
 
-using Revise
+using Revise, LaTeXStrings
 
 function spectrum(p)
     @assert p[:converged]
@@ -43,13 +43,15 @@ function boundary(p; overprint=false)
 
         if overprint
             scatter!(s, alpha=0.3, legend=false,
-                aspect_ratio=1, grid=false, color=COLOR_SUB35)
+                aspect_ratio=1, grid=false, label="1")#, color=COLOR_SUB35)
         else
             scatter(s, alpha=0.3, legend=false,
-                aspect_ratio=1, grid=false, color=COLOR_SUB35)
+                aspect_ratio=1, grid=false, label="2")#, color=COLOR_SUB35)
         end
 
-        annotate!(minimum(minimum(real.(s))), maximum(maximum(imag.(s))), "S=$diversity")
+        annotate!(minimum(minimum(real.(s))), maximum(maximum(imag.(s)))+0.02, "S=$diversity")
+        annotate!(-0.15,-0.08, L"\longleftarrow")
+        annotate!(-0.15,-0.09, "Increasing diversity")
 
         pl = Plots.contour!(X, Y, (x, y) -> T(x, y, n, p), levels=[1 / (p[:σ])^2],
             linewidth=2, color=:auto, colorbar=false)

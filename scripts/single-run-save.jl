@@ -1,44 +1,30 @@
-using DrWatson, Glob, Revise
+using DrWatson, Glob, Revise, LaTeXStrings
 @quickactivate
 foreach(includet, glob("*.jl", srcdir()))
 # includet()
 
 using ProgressMeter, Suppressor, DataFrames
-using Plots, LaTeXStrings
+using Plots
 using ArgCheck
+
+plot_font = "Computer Modern"
+default(fontfamily=plot_font,
+        linewidth=2, framestyle=:box, label=nothing, grid=false)
 
 DrWatson._wsave(s::String, plot::Plots.Plot) = savefig(plot, s)
 DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict)
 
-# allparams = Dict{Symbol,Any}(
-#     :scaled => false,
-#     :S => 1000,
-#     :μ => Derived(:S, x -> 1 / x),
-#     :C => 1.0,
-#     :σ => Derived(:S, x -> 0.1 / sqrt(x)),
-#     :k => 0.75,
-#     :b0 => 1.0,
-#     :K => 1e5,
-#     :λ => 0,
-#     :z => 0,
-#     :r => 1,
-#     :N => 10,
-#     :threshold => false,
-#     :dist => "normal",
-#     :symm => false,
-#     :seed => 17,
-# )
-
 allparams = Dict{Symbol,Any}(
     :scaled => false,
-    :S => [6],
-    :μ => 0.01,
-    # :C => 1.0,
-    :σ => 0.005,
-    :k => 1.0,
-    :n0 => 1e-8,
-    :b0 => 1,
-    :K => 20,
+    :S => [10,20,50],
+    # :μ => Derived(:S, x -> 1 / x),
+    :μ => 0.1,
+    :C => 1.0,
+    # :σ => Derived(:S, x -> 0.1 / sqrt(x)),
+    :σ => 0.01,
+    :k => 0.75,
+    :b0 => 1.0,
+    :K => 1e6,
     :λ => 0,
     :z => 0,
     :r => 1,
@@ -46,8 +32,28 @@ allparams = Dict{Symbol,Any}(
     :threshold => false,
     :dist => "normal",
     :symm => false,
-    :seed => 19,
+    :seed => 17,
 )
+
+# allparams = Dict{Symbol,Any}(
+#     :scaled => false,
+#     :S => [6,10,15],
+#     :μ => 0.01,
+#     # :C => 1.0,
+#     :σ => 0.005,
+#     :k => 1.0,
+#     :n0 => 1e-8,
+#     :b0 => 1,
+#     :K => 8,
+#     :λ => 0,
+#     :z => 0,
+#     :r => 1,
+#     :N => 1,
+#     :threshold => false,
+#     :dist => "normal",
+#     :symm => false,
+#     :seed => 17,
+# )
 
 function logistic_stability_threshold(r, K, μ, σ)
     return ((r / K) - μ) / σ
@@ -57,16 +63,13 @@ end
 dicts = dict_list(allparams)
 pl = Plots.plot()
 for (i, d) in enumerate(dicts)
-    @argcheck d[:S] < logistic_stability_threshold(d[:r], d[:K], d[:μ], d[:σ])
+    # @argcheck d[:S] < logistic_stability_threshold(d[:r], d[:K], d[:μ], d[:σ])
     println("Running:\n$d")
     evolve!(d; trajectory=true)
     println(d[:richness])
     global pl = boundary(d, overprint=true)
 end
 
-
-
-println(typeof(pl))
 display(pl)
 
 safesave(plotsdir(savename(allparams, "png")), pl)

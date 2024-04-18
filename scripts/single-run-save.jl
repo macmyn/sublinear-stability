@@ -16,7 +16,7 @@ DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict)
 
 allparams = Dict{Symbol,Any}(
     :scaled => false,
-    :S => [10,20,50],
+    :S => [8,20,50],
     # :μ => Derived(:S, x -> 1 / x),
     :μ => 0.1,
     :C => 1.0,
@@ -37,7 +37,7 @@ allparams = Dict{Symbol,Any}(
 
 # allparams = Dict{Symbol,Any}(
 #     :scaled => false,
-#     :S => [6,10,15],
+#     :S => [8,20,50],
 #     :μ => 0.01,
 #     # :C => 1.0,
 #     :σ => 0.005,
@@ -70,8 +70,9 @@ for (i, d) in enumerate(dicts)
     global pl = boundary(d, overprint=true)
 end
 
+plot!(xlims=(-2,0))
 display(pl)
 
-safesave(plotsdir(savename(allparams, "png")), pl)
+# safesave(plotsdir(savename(allparams, "png")), pl)
 
 

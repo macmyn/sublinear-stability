@@ -31,6 +31,7 @@ function boundary(p; overprint=false)
     diversity = p[:S]
 
     s = spectrum(p)
+    println(s)
 
     n = p[:equilibrium]
     if p[:converged]
@@ -49,10 +50,20 @@ function boundary(p; overprint=false)
                 aspect_ratio=1, grid=false, label="2")#, color=COLOR_SUB35)
         end
 
-        annotate!(minimum(minimum(real.(s))), maximum(maximum(imag.(s)))+0.02, "S=$diversity")
-        annotate!(-0.15,-0.08, L"\longleftarrow")
-        annotate!(-0.15,-0.09, "Increasing diversity")
+        if p[:k] == 1.0  # logisic growth
+            annotate!(minimum(minimum(real.(s))), maximum(maximum(imag.(s)))+0.05, "S=$diversity")
+            annotate!(-0.65,-0.17, L"\longrightarrow")
+            annotate!(-0.65,-0.19, "Increasing diversity")
+            title!("Logistic growth")
 
+        elseif p[:k] == 0.75  # sublinear growth
+            annotate!(minimum(minimum(real.(s))), maximum(maximum(imag.(s)))+0.02, "S=$diversity")
+            annotate!(-0.15,-0.08, L"\longleftarrow")
+            annotate!(-0.15,-0.09, "Increasing diversity")
+            title!("Sublinear growth")
+        end
+
+            
         pl = Plots.contour!(X, Y, (x, y) -> T(x, y, n, p), levels=[1 / (p[:σ])^2],
             linewidth=2, color=:auto, colorbar=false)
     else

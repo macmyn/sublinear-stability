@@ -3,32 +3,62 @@
 using DifferentialEquations
 using Random, Distributions
 using LinearAlgebra
+using Distributions
+using ForwardDiff
 
+# function production(x, p)
+#     return (x > p[:b0] * p[:threshold] ? x^p[:k] : 0)
+#     # if x > B0: x^k; else 0
+# end
+# function dproduction(x, p)
+#     return (x > p[:b0] * p[:threshold] ? p[:k] * x^(p[:k] - 1) : 0)
+# end
 
-function production(x, p)
-    return (x > p[:b0] * p[:threshold] ? x^p[:k] : 0)
+# function F!(f, x, p)
+#     f .= p[:r] * p[:b0]^(1 - p[:k]) .* (production.(ppart.(x), Ref(p)) .- x .^ 2 ./ p[:K]) .- p[:z] * x .- x .* (p[:a] * x) .+ p[:λ]
+# end      #      r*B0^(1-k)                        B^k if x>B0 else 0    - B^2 / K              - z * B       - x * A * B     + lambda (always 0?)
+#          # logis: k=0 --> r * 1             logis: k=1 --> B
+
+function betapdf(a,b,x::Real)
+    bb = Beta(a,b)
+    return pdf(bb,x)
+    # return pdf(Beta(a,b),x)
 end
-function dproduction(x, p)
-    return (x > p[:b0] * p[:threshold] ? p[:k] * x^(p[:k] - 1) : 0)
+
+# function dbetapdfdx(x::Real)
+#     return ForwardDiff.derivative(betapdf,x)
+# end
+
+function dbetapdfdx(a,b,x::Real)
+    dd = @. (1.0/beta(a,b)) * x^(a-2) * (1-x)^(b-2) * (a - x*(a+b-2) -1)
+    return dd
 end
 
-function F!(f, x, p)
-    f .= p[:r] * p[:b0]^(1 - p[:k]) .* (production.(ppart.(x), Ref(p)) .- x .^ 2 ./ p[:K]) .- p[:z] * x .- x .* (p[:a] * x) .+ p[:λ]
+function Fbeta!(f,x,p)
+    f .= p[:r] * betapdf.(p[:betaa],p[:betab],x) .- p[:z]*x .- x.*(p[:a]*x) .+ p[:λ]
 end
 
-function J!(j, x, p)
+
+# function J!(j, x, p)
+#     j = -x .* p[:a]
+#     j[diagind(j)] .= p[:r] * p[:b0]^(1 - p[:k]) .* (dproduction.(x, Ref(p)) .- 2 * x ./ p[:K]) .- p[:z] .- p[:a] * x
+
+#     # above_threshold = x .> p[:b0]
+#     # j[diagind(j)[above_threshold]] .+= p[:k].*p[:r][above_threshold].*x[above_threshold].^(p[:k]-1)
+# end
+
+# function J(x, p)
+#     j = -x .* p[:a]
+#     j[diagind(j)] .= p[:r] * p[:b0]^(1 - p[:k]) .* (dproduction.(x, Ref(p)) .- 2 * x ./ p[:K]) .- p[:z] .- p[:a] * x
+#     return j
+# end
+
+function Jbeta(x, p)
     j = -x .* p[:a]
-    j[diagind(j)] .= p[:r] * p[:b0]^(1 - p[:k]) .* (dproduction.(x, Ref(p)) .- 2 * x ./ p[:K]) .- p[:z] .- p[:a] * x
-
-    # above_threshold = x .> p[:b0]
-    # j[diagind(j)[above_threshold]] .+= p[:k].*p[:r][above_threshold].*x[above_threshold].^(p[:k]-1)
-end
-
-function J(x, p)
-    j = -x .* p[:a]
-    j[diagind(j)] .= p[:r] * p[:b0]^(1 - p[:k]) .* (dproduction.(x, Ref(p)) .- 2 * x ./ p[:K]) .- p[:z] .- p[:a] * x
+    j[diagind(j)] .= p[:r] * dbetapdfdx.(p[:betaa],p[:betab],x)
     return j
 end
+
 
 ## solving
 
@@ -56,8 +86,8 @@ function evolve!(p; trajectory=false)
 
     pb = ODEProblem(
         ODEFunction(
-            (f, x, p, t) -> F!(f, x, p); #in-place F faster
-            jac=(j, x, p, t) -> J!(j, x, p) #specify jacobian speeds things up
+            (f, x, p, t) -> Fbeta!(f, x, p); #in-place F faster
+            # jac=(j, x, p, t) -> J!(j, x, p) #specify jacobian speeds things up
         ),
         p[:x0], #initial condition
         (0.0, MAX_TIME),
@@ -103,8 +133,8 @@ function equilibria!(p)
         add_initial_condition!(p)
         pb = ODEProblem(
             ODEFunction(
-                (f, x, p, t) -> F!(f, x, p); #in-place F faster
-                jac=(j, x, p, t) -> J!(j, x, p) #specify jacobian speeds things up
+                (f, x, p, t) -> Fbeta!(f, x, p); #in-place F faster
+                # jac=(j, x, p, t) -> J!(j, x, p) #specify jacobian speeds things up
             ),
             p[:x0],
             (0.0, MAX_TIME),

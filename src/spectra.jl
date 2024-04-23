@@ -47,7 +47,7 @@ function boundary(p; overprint=false)
         Y = range(1.2 * minimum(imag.(s)), 1.2 * maximum(imag.(s)); length=100)
         if overprint
             pl=scatter!(s, alpha=0.3, legend=false,
-                aspect_ratio=1, grid=false, label="1")#, color=COLOR_SUB35)
+                grid=false, label="1")#, color=COLOR_SUB35)
         else
             scatter(s, alpha=0.3, legend=false,
                 aspect_ratio=1, grid=false, label="2")#, color=COLOR_SUB35)
@@ -85,5 +85,5 @@ function inset(p)
         ys = betapdf.(p[:betaa],p[:betab],xs)
         plot!(xs,ys,inset=(1,bbox(0.65,0.08,0.25,0.25)),subplot=2,xticks=0:1:1)
     end
-
+    return 
 end

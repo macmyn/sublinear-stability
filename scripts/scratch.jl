@@ -17,7 +17,7 @@ gr(fmt=:png)
 ## Beta ##
 allparams = Dict{Symbol,Any}(
     :scaled => false,
-    :S => [7,10,20],
+    :S => [10,20,30],
     :μ => 0.1,
     # :C => 1.0,
     :σ => 0.01,
@@ -37,14 +37,16 @@ allparams = Dict{Symbol,Any}(
     :seed => 17,
 )
 
-betaa = 2
+betasum = 4
+# betaa = 2
 betabs = 2.05:0.025:3.5
 anim = @animate for i in eachindex(betabs)
 # for i in eachindex(betabs)
     plot()
     # plot!(size=(800,300))
     bb = betabs[i]
-    allparams[:betaa] = 2.5
+    aa = betasum - betabs[i]
+    allparams[:betaa] = aa
     allparams[:betab] = bb
 
     dicts = dict_list(allparams)
@@ -55,7 +57,7 @@ anim = @animate for i in eachindex(betabs)
         global pl = boundary(d,overprint=true)
     end
     inset(allparams)
-    plot!(xlim=(-7,-1),ylim=(-0.1,0.1),subplot=1)
+    plot!(xlim=(-5,-1),ylim=(-0.05,0.1),subplot=1)
     # frame(anim)
     # display(pl)
 end
@@ -66,7 +68,7 @@ end
 
 # plot(pl,i)
 
-gif(anim, "testanim.gif",fps=3)
+gif(anim, "testanim_constsum.gif",fps=3)
 
 
 # @userplot RangePlot

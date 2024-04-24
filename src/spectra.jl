@@ -84,6 +84,7 @@ function inset(p)
         xs = range(0,1,100)
         ys = betapdf.(p[:betaa],p[:betab],xs)
         plot!(xs,ys,inset=(1,bbox(0.65,0.08,0.25,0.25)),subplot=2,xticks=0:1:1)
+        annotate!(0.9,-0.25,Plots.text("\$a = $(round(p[:betaa],sigdigits=3)), b = $(round(p[:betab],sigdigits=2))\$", :black, :right, 10))
     end
     return 
 end

@@ -36,11 +36,13 @@ allparams = Dict{Symbol,Any}(
     :symm => false,
     :seed => 17,
 )
-betaa = 2
-betabs = 1.5:3:0.05
+betasum = 4
+# betaa = 2
+betabs = 2.05:0.025:3.5
 anim = @animate for i in eachindex(betabs)
     bb = betabs[i]
-    allparams[:betaa] = 2.5
+    aa = betasum - betabs[i]
+    allparams[:betaa] = aa
     allparams[:betab] = bb
 
     dicts = dict_list(allparams)

@@ -37,69 +37,50 @@ allparams = Dict{Symbol,Any}(
     :seed => 17,
 )
 
+# betasum = 4
+# # betaa = 2
+# betabs = 2.05:0.025:3.5
+# anim = @animate for i in eachindex(betabs)
+# # for i in eachindex(betabs)
+#     plot()
+#     bb = betabs[i]
+#     aa = betasum - betabs[i]
+#     allparams[:betaa] = aa
+#     allparams[:betab] = bb
+
+#     dicts = dict_list(allparams)
+#     for (i,d) in enumerate(dicts)
+#         evolve!(d; trajectory=true)
+#         global pl = boundary(d,overprint=true)
+#     end
+#     inset(allparams)
+#     plot!(xlim=(-5,-1),ylim=(-0.05,0.1),subplot=1)
+# end
+
 betasum = 4
 # betaa = 2
 betabs = 2.05:0.025:3.5
-anim = @animate for i in eachindex(betabs)
+betab = betabs[28]
+
+thresholds = 0.1:0.1:0.9
+
+anim = @animate for th in thresholds
 # for i in eachindex(betabs)
     plot()
-    # plot!(size=(800,300))
-    bb = betabs[i]
-    aa = betasum - betabs[i]
+    bb = betab
+    aa = betasum - betab
     allparams[:betaa] = aa
     allparams[:betab] = bb
 
+    allparams[:threshold] = th
+
     dicts = dict_list(allparams)
-    # plot()
-    # scatter(randn(100))
     for (i,d) in enumerate(dicts)
         evolve!(d; trajectory=true)
         global pl = boundary(d,overprint=true)
     end
     inset(allparams)
     plot!(xlim=(-5,-1),ylim=(-0.05,0.1),subplot=1)
-    # frame(anim)
-    # display(pl)
 end
-# display(pl)
 
-# allparams[:betaa] = 2
-
-
-# plot(pl,i)
-
-gif(anim, "testanim_constsum.gif",fps=3)
-
-
-# @userplot RangePlot
-# @recipe function f(rp::RangePlot)
-    
-#     p,betaa,betab = RangePlot.args
-#     p[:betaa] = betaa
-#     p[:betab] = betab
-
-#     dicts = dict_list(p)
-#     for (i,d) in enumerate(dicts)
-#         evolve!(d; trajectory=true)
-#         global pl = boundary(d, overprint=true)
-#     end
-#     inset(dicts)    
-
-# end
-
-
-# dicts = dict_list(allparams)
-# pl = Plots.plot()
-# for (i, d) in enumerate(dicts)
-#     # @argcheck d[:S] < logistic_stability_threshold(d[:r], d[:K], d[:μ], d[:σ])
-#     # println("Running:\n$d")
-#     evolve!(d; trajectory=true)
-#     # println(d[:richness])
-#     global pl = boundary(d, overprint=true)
-# end
-
-# inset(allparams)
-
-# # plot!(xlims=(-2,0))
-# display(pl)
-# """
+gif(anim, "testanim_thresh2.gif",fps=1)

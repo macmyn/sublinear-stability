@@ -19,9 +19,11 @@ using ForwardDiff
 # end      #      r*B0^(1-k)                        B^k if x>B0 else 0    - B^2 / K              - z * B       - x * A * B     + lambda (always 0?)
 #          # logis: k=0 --> r * 1             logis: k=1 --> B
 
-function betapdf(a,b,x::Real)
-    bb = Beta(a,b)
-    return pdf(bb,x)
+function betapdf(p,x::Real)
+    a = p[:betaa]
+    b = p[:betab]
+    beta_fn_value = Beta(a,b)
+    return ( x > p[:b0]*p[:threshold] ? pdf(beta_fn_value,x) : 0)
     # return pdf(Beta(a,b),x)
 end
 
@@ -29,13 +31,15 @@ end
 #     return ForwardDiff.derivative(betapdf,x)
 # end
 
-function dbetapdfdx(a,b,x::Real)
+function dbetapdfdx(p,x::Real)
+    a = p[:betaa]
+    b = p[:betab]
     dd = @. (1.0/beta(a,b)) * x^(a-2) * (1-x)^(b-2) * (a - x*(a+b-2) -1)
-    return dd
+    return ( x > p[:b0] * p[:threshold] ? dd : 0)
 end
 
 function Fbeta!(f,x,p)
-    f .= p[:r] * betapdf.(p[:betaa],p[:betab],x) .- p[:z]*x .- x.*(p[:a]*x) .+ p[:λ]
+    f .= p[:r] * betapdf.(Ref(p),x) .- p[:z]*x .- x.*(p[:a]*x) .+ p[:λ]
 end
 
 
@@ -55,7 +59,7 @@ end
 
 function Jbeta(x, p)
     j = -x .* p[:a]
-    j[diagind(j)] .= p[:r] * dbetapdfdx.(p[:betaa],p[:betab],x)
+    j[diagind(j)] .= p[:r] * dbetapdfdx.(Ref(p),x)
     return j
 end
 

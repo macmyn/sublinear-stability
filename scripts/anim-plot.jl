@@ -37,16 +37,45 @@ allparams = Dict{Symbol,Any}(
     :seed => 17,
 )
 
+betasum = 4
+# betaa = 2
+betabs = 2.05:0.025:3.9
+anim = @animate for i in eachindex(betabs)
+# for i in eachindex(betabs)
+    plot()
+    bb = betabs[i]
+    aa = betasum - betabs[i]
+    allparams[:betaa] = aa
+    allparams[:betab] = bb
+
+    dicts = dict_list(allparams)
+    for (i,d) in enumerate(dicts)
+        evolve!(d; trajectory=true)
+        global pl = boundary(d,overprint=true)
+    end
+    inset(allparams)
+    # plot!(xlim=(-5,-1),ylim=(-0.05,0.1),subplot=1)
+end
+
+gif(anim, "testanim_x_beta.gif",fps=5)
+
+
 # betasum = 4
 # # betaa = 2
 # betabs = 2.05:0.025:3.5
-# anim = @animate for i in eachindex(betabs)
+# betab = betabs[28]
+
+# thresholds = 0.1:0.1:0.9
+
+# anim = @animate for th in thresholds
 # # for i in eachindex(betabs)
 #     plot()
-#     bb = betabs[i]
-#     aa = betasum - betabs[i]
+#     bb = betab
+#     aa = betasum - betab
 #     allparams[:betaa] = aa
 #     allparams[:betab] = bb
+
+#     allparams[:threshold] = th
 
 #     dicts = dict_list(allparams)
 #     for (i,d) in enumerate(dicts)
@@ -57,30 +86,4 @@ allparams = Dict{Symbol,Any}(
 #     plot!(xlim=(-5,-1),ylim=(-0.05,0.1),subplot=1)
 # end
 
-betasum = 4
-# betaa = 2
-betabs = 2.05:0.025:3.5
-betab = betabs[28]
-
-thresholds = 0.1:0.1:0.9
-
-anim = @animate for th in thresholds
-# for i in eachindex(betabs)
-    plot()
-    bb = betab
-    aa = betasum - betab
-    allparams[:betaa] = aa
-    allparams[:betab] = bb
-
-    allparams[:threshold] = th
-
-    dicts = dict_list(allparams)
-    for (i,d) in enumerate(dicts)
-        evolve!(d; trajectory=true)
-        global pl = boundary(d,overprint=true)
-    end
-    inset(allparams)
-    plot!(xlim=(-5,-1),ylim=(-0.05,0.1),subplot=1)
-end
-
-gif(anim, "testanim_thresh2.gif",fps=1)
+# gif(anim, "testanim_thresh2.gif",fps=1)

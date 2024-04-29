@@ -4,7 +4,7 @@ using Revise, LaTeXStrings
 
 function spectrum(p)
     @assert p[:converged]
-    return eigen(Jbeta(p[:equilibrium], p)).values
+    return eigen(JVit(p[:equilibrium], p)).values
 end
 
 T(x, y, n, p) = (q = (p[:μ] - 1 / p[:K]^(2 - p[:k]));
@@ -65,9 +65,9 @@ function boundary(p; overprint=false)
         #     annotate!(-0.15,-0.09, "Increasing diversity")
         #     title!("Sublinear growth")
         
-        if haskey(p,:betaa)
+        if haskey(p,:betaa) | haskey(p,:d)
             println("ANNOTATING")
-            annotate!(minimum(minimum(real.(s))), maximum(maximum(imag.(s)))+0.02, "S=$diversity")
+            annotate!(minimum(minimum(real.(s))), minimum(minimum(imag.(s))), "S=$diversity")
         
         end
         
@@ -86,6 +86,12 @@ function inset(p)
         ys = betapdf.(Ref(p),xs)
         plot!(xs,ys,inset=(1,bbox(0.65,0.08,0.25,0.25)),subplot=2,xticks=0:1:1)
         annotate!(0.9,-0.25,Plots.text("\$a = $(round(p[:betaa],sigdigits=3)), b = $(round(p[:betab],sigdigits=2))\$", :black, :right, 10))
+    elseif haskey(p,:d)
+        xs = range(0,1,100)
+        ys = vit.(Ref(p),xs)
+        plot!(xs,ys,inset=(1,bbox(0.64,0.08,0.25,0.25)),subplot=2,xticks=0:1:1)
+        plot!(xlim=(0,1),ylim=(0,4),subplot=2)
+        annotate!(0.9, -1, Plots.text("\$d = $(round(p[:d],sigdigits=1))\$",:black, :right, 10))
     end
     return 
 end

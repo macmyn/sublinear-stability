@@ -57,28 +57,55 @@ DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict)
 #     :seed => 17,
 # )
 
-## Beta ##
+# ## Beta ##
+# allparams = Dict{Symbol,Any}(
+#     :scaled => false,
+#     :S => [6,8,12],
+#     :μ => 0.1,
+#     # :C => 1.0,
+#     :σ => 0.01,
+#     :k => 1.0,
+#     :n0 => 1e-8,
+#     :b0 => 1,
+#     :K => 1e6,
+#     :λ => 0,
+#     :z => 0,
+#     :r => 1,
+#     :N => 1,
+#     :betaa => 2,
+#     :betab => 2.5,
+#     :threshold => false,
+#     :dist => "normal",
+#     :symm => false,
+#     :seed => 17,
+# )
+
+
+## Vit ##
 allparams = Dict{Symbol,Any}(
     :scaled => false,
-    :S => [6,8,12],
+    :S => [5,10,50],
     :μ => 0.1,
     # :C => 1.0,
     :σ => 0.01,
-    :k => 1.0,
+    :k => 0.2,
     :n0 => 1e-8,
     :b0 => 1,
     :K => 1e6,
     :λ => 0,
-    :z => 0,
+    :z => 0.1,
     :r => 1,
     :N => 1,
-    :betaa => 2,
-    :betab => 2.5,
+    :d => 1,
+    # :betaa => 2,
+    # :betab => 2.5,
     :threshold => false,
     :dist => "normal",
     :symm => false,
     :seed => 17,
 )
+
+
 
 function logistic_stability_threshold(r, K, μ, σ)
     return ((r / K) - μ) / σ

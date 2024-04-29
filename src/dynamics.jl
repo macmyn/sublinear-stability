@@ -17,19 +17,19 @@ using ForwardDiff
 # function F!(f, x, p)
 #     f .= p[:r] * p[:b0]^(1 - p[:k]) .* (production.(ppart.(x), Ref(p)) .- x .^ 2 ./ p[:K]) .- p[:z] * x .- x .* (p[:a] * x) .+ p[:λ]
 # end      #      r*B0^(1-k)                        B^k if x>B0 else 0    - B^2 / K              - z * B       - x * A * B     + lambda (always 0?)
-#          # logis: k=0 --> r * 1             logis: k=1 --> B
+#          # logis: 1-k=0 --> r * 1             logis: k=1 --> B
 
-function betapdf(p,x::Real)
-    a = p[:betaa]
-    b = p[:betab]
-    beta_fn_value = Beta(a,b)
-    return ( x > p[:b0]*p[:threshold] ? x*pdf(beta_fn_value,x) : 0)
-    # return pdf(Beta(a,b),x)
-end
+# function betapdf(p,x::Real)
+#     a = p[:betaa]
+#     b = p[:betab]
+#     beta_fn_value = Beta(a,b)
+#     return ( x > p[:b0]*p[:threshold] ? x*pdf(beta_fn_value,x) : 0)
+#     # return pdf(Beta(a,b),x)
+# end
 
-function dbetapdfdx(p,x::Real)
-    return ForwardDiff.derivative(x->betapdf(p,x),x)
-end
+# function dbetapdfdx(p,x::Real)
+#     return ForwardDiff.derivative(x->betapdf(p,x),x)
+# end
 
 # function dbetapdfdx(p,x::Real)
 #     a = p[:betaa]
@@ -38,20 +38,32 @@ end
 #     return ( x > p[:b0] * p[:threshold] ? dd : 0)
 # end
 
-function Fbeta!(f,x,p)
-    f .= p[:r] * betapdf.(Ref(p),x) .- p[:z]*x .- x.*(p[:a]*x) .+ p[:λ]
+# function Fbeta!(f,x,p)
+#     f .= p[:r] * betapdf.(Ref(p),x) .- p[:z]*x .- x.*(p[:a]*x) .+ p[:λ]
+# end
+
+function vitdenom(p)
+    return p[:b0] + p[:d]*(p[:z]/p[:r])^(1/(1-p[:k]))
 end
 
-function vit(p,x::Real)
 
+function vit(p,x::Real)
+    r = p[:r]
+    z = p[:z]
+    d = p[:d]
+    k = p[:k]
+
+    denom = vitdenom(p)
+    return r * ((x+d)/denom)^(k-1) - z
 end
 
 function dvitdx(p,x::Real)
-
+    return ForwardDiff.derivative(x->vit(p,x),x)
 end
 
-
-
+function FVit!(f,x,p)
+    f.= x.*vit.(Ref(p),x) .- x.*(p[:a]*x) .+ p[:λ]
+end
 
 # function J!(j, x, p)
 #     j = -x .* p[:a]
@@ -67,13 +79,23 @@ end
 #     return j
 # end
 
-function Jbeta(x, p)
-    j = -x .* p[:a]
-    j[diagind(j)] .= p[:r] * dbetapdfdx.(Ref(p),x)
-    return j
-end
+# function Jbeta(x, p)
+#     j = -x .* p[:a]
+#     j[diagind(j)] .= p[:r] * dbetapdfdx.(Ref(p),x)
+#     return j
+# end
 
 function JVit(x,p)
+    r = p[:r]
+    z = p[:z]
+    d = p[:d]
+    k = p[:k]
+        
+    j = -x .* p[:a]
+    
+    denom = vitdenom(p)
+    j[diagind(j)] .= -z .+ r.*((x.+d)/denom).^(k-1) + (k-1)*r.*x.*(((x.+d)/denom).^(k-2))/denom .- p[:a] * x
+    return j
 
 end
 
@@ -104,7 +126,7 @@ function evolve!(p; trajectory=false)
 
     pb = ODEProblem(
         ODEFunction(
-            (f, x, p, t) -> Fbeta!(f, x, p); #in-place F faster
+            (f, x, p, t) -> FVit!(f, x, p); #in-place F faster
             # jac=(j, x, p, t) -> J!(j, x, p) #specify jacobian speeds things up
         ),
         p[:x0], #initial condition

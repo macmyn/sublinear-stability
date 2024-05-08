@@ -31,10 +31,10 @@ for (i, p) in Iterators.reverse(enumerate(dicts))
     params = NamedTuple([pair for pair in p])  # ODEProblem only takes NamedTuple 🙄
 
     # Define problem and get solution
-    prob = ODEProblem(new, x0, tspan, params,)
+    prob = ODEProblem(general_interactions, x0, tspan, params,)
     sol = solve(prob, Tsit5())
 
-    # Jacobian and eigen values
+    # Jacobian and values
     final_state = sol[end]
     final_state_b = final_state.^(p[:beta]-1)  # N^{β-1} term (@ein doesn't like it in line below)
     @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from N_i, N_j

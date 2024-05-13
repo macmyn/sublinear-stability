@@ -7,9 +7,8 @@ plots = plot(layout=(2,1))
 
 d_s = []
 
-
-alphas = -2:0.1:2
-betas = -2:0.1:2
+alphas = 0:0.1:1.4
+betas = 1.0:0.1:1.5
 
 all_params = Dict{Symbol,Any}(
     :z => 1,
@@ -38,7 +37,7 @@ for a in alphas, b in betas
         prob = ODEProblem(general_interactions, x0, tspan, p,)
 
         try
-        sol = solve(prob, Tsit5())
+        sol = solve(prob, AutoTsit5(Rosenbrock23()))
 
         # Jacobian and eigenvalues
         final_state = sol[end]
@@ -49,8 +48,10 @@ for a in alphas, b in betas
         eigvs = eigen(J).values
         
         push!(maximums, maximum(real(eigvs)))
+        println(maximum(real(eigvs)))
 
-        catch
+        catch e
+            showerror(stdout, e)
             println("CONFIGURATION: $a, $b failed")
             
             push!(maximums, NaN)
@@ -66,3 +67,4 @@ DrWatson._wsave(s::String, v::Vector) = FileIO.save(s, "data", v)
 
 name = savename(all_params, "jld2")
 safesave(datadir(name), d_s)
+println("Saved to $(datadir(name))")

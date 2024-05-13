@@ -16,5 +16,5 @@ rng = MersenneTwister(42)
 plot_font = "Computer Modern"
 default(fontfamily=plot_font,
 linewidth=2, framestyle=:box, label=nothing, grid=false)
-colors = palette(:tab10, length(all_params[:N]))
+
 

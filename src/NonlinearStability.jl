@@ -5,8 +5,13 @@ function get_interaction_matrix(p)
     return A
 end
 
+function calculate_rfix(p)
+    r = sum(p[:A], dims=2)
+    return r
+end
+
 function general_interactions(db, b, p, t)
-    bracket = sign(p[:alpha])*p[:z] .- sign(p[:alpha]) * p[:r] .* (b.^p[:alpha]) - p[:A] * (b.^p[:beta])
+    bracket = sign(p[:alpha])*p[:z] .- sign(p[:alpha]) .* p[:r] .* (b.^p[:alpha]) - p[:A] * (b.^p[:beta])
                                                                                   # A[diagind] = 0 so mat mul is fine
     db .= b .* bracket
 end

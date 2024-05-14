@@ -7,12 +7,12 @@ plots = plot(layout=(2,1))
 
 d_s = []
 
-alphas = 0:0.1:1.4
-betas = 1.0:0.1:1.5
+alphas = 0:0.1:5
+betas = 0.0:0.1:5
 
 all_params = Dict{Symbol,Any}(
     :z => 1,
-    :r => 1,
+    # :r => 1,
     :N => [20,50,100],
     :μ => 0.1,
     :σ => 0.05,
@@ -29,15 +29,17 @@ for a in alphas, b in betas
 
         # Set interaction matrix (normal with zeros)
         p[:A] = get_interaction_matrix(p)
+        p[:r] = calculate_rfix(p)
         
         # Initial conditions
-        x0 = rand(rng, Uniform(1,5),p[:N])
+        # x0 = rand(rng, Uniform(1,5),p[:N])
+        x0 = fill(0.1,p[:N])
 
         p = NamedTuple([pair for pair in p])  # ODEProblem only takes NamedTuple 🙄
         prob = ODEProblem(general_interactions, x0, tspan, p,)
 
         try
-        sol = solve(prob, AutoTsit5(Rosenbrock23()))
+        sol = solve(prob, Tsit5())
 
         # Jacobian and eigenvalues
         final_state = sol[end]

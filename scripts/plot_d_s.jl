@@ -1,7 +1,7 @@
 using Plots, CategoricalArrays, FileIO, LaTeXStrings
 
 # maximums = FileIO.load("maximums_2.jld2")["d_s"]
-file = datadir("nothing=_r=1_z=1_μ=0.1_σ=0.05.jld2")
+file = datadir("nothing=_z=1_μ=0.1_σ=0.05.jld2")
 maximums = FileIO.load(file)["data"]
 
 # println(maximums)

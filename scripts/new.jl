@@ -2,21 +2,15 @@ using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, 
 include(srcdir("NonlinearStability.jl"))
 gr()
 
-tspan = (0.0, 100.0)
+tspan = (0.0, 1000.0)
 plots = plot(layout=(2,1))
 
-function general_interactions(db, b, p, t)
-    bracket = sign(p[:alpha])*p[:z] .- sign(p[:alpha]) * p[:r] .* (b.^p[:alpha]) - p[:A] * (b.^p[:beta])
-                                                                                  # A[diagind] = 0 so mat mul is fine
-    db .= b .* bracket
-end
-
-a = 0.5
-b = 0.5
+a = 2
+b = 1.2
 
 all_params = Dict{Symbol,Any}(
     :z => 1,
-    :r => 1,
+    # :r => 1,
     :alpha => a,
     :beta => b,
     :N => [20,50,100],
@@ -30,16 +24,19 @@ all_params = Dict{Symbol,Any}(
         
         # Set interation matrix (normal with zeros on diags)
         p[:A] = get_interaction_matrix(p)
+        p[:r] = calculate_rfix(p)
+        # p[:r] = 1
+        println(p[:r])
         
         # Initial condition
-        x0 = rand(rng, Uniform(1,5),p[:N])
+        x0 = fill(0.1,p[:N])
         
         params = NamedTuple([pair for pair in p])  # ODEProblem only takes NamedTuple 🙄
         
         # Define problem and get solution
         prob = ODEProblem(general_interactions, x0, tspan, params,)
-        # @infiltrate
         sol = solve(prob, AutoTsit5(Rosenbrock23()))
+
         # Jacobian and values
         final_state = sol[end]
         final_state_b = final_state.^(p[:beta]-1)  # N^{β-1} term (@ein doesn't like it in line below)
@@ -54,8 +51,10 @@ all_params = Dict{Symbol,Any}(
         label = "\$N = $(p[:N])\$"
         
         # Time series        
-    plot!(sol[1:end],subplot=1,label=nothing,color=colors[i],alpha=0.5)
-    plot!(sol[1],subplot=1,label=label,color=colors[i],alpha=0.5)  # Plot with label
+    # lol julia starts at 1 so this doesn't do anything...
+    plot!(sol[2:end],subplot=1,label=nothing,color=colors[i],alpha=0.5)
+    plot!(sol.t, sol[1,:], subplot=1,label=label,color=colors[i], alpha=0.5)
+    # plot!(sol[1],subplot=1,label=label,color=colors[i],alpha=0.5)  # Plot with label
     plot!(yticks=[0,1,2,3,4,5],subplot=1)
 
     # Eigs plot

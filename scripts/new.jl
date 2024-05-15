@@ -5,12 +5,14 @@ gr()
 tspan = (0.0, 1000.0)
 plots = plot(layout=(2,1))
 
-a = 2
-b = 1.2
+a = 1
+b = 1
+
+maxes = []
 
 all_params = Dict{Symbol,Any}(
     :z => 1,
-    # :r => 1,
+    :r => 1.0/20,
     :alpha => a,
     :beta => b,
     :N => [20,50,100],
@@ -24,7 +26,7 @@ all_params = Dict{Symbol,Any}(
         
         # Set interation matrix (normal with zeros on diags)
         p[:A] = get_interaction_matrix(p)
-        p[:r] = calculate_rfix(p)
+        # p[:r] = calculate_rfix(p)
         # p[:r] = 1
         println(p[:r])
         
@@ -42,9 +44,10 @@ all_params = Dict{Symbol,Any}(
         final_state_b = final_state.^(p[:beta]-1)  # N^{β-1} term (@ein doesn't like it in line below)
         @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from N_i, N_j
         J .*= -1 * p[:beta]  # Global factor (except on diags) of -β
-        J[diagind(J)] = -sign(p[:alpha]) * p[:r] * p[:alpha] .* final_state.^p[:alpha]  # Diag terms
+        J[diagind(J)] = -sign(p[:alpha]) .* p[:r] * p[:alpha] .* final_state.^p[:alpha]  # Diag terms
         eigvs = eigen(J).values
-        print(maximum(real(eigvs)))
+        
+        push!(maxes, maximum(real(eigvs)))
         
         ## Plot things ##
         colors = palette(:tab10, length(all_params[:N]))
@@ -60,6 +63,12 @@ all_params = Dict{Symbol,Any}(
     # Eigs plot
     scatter!(eigvs,subplot=2,label=label,color=colors[i])
 
+end
+println(maxes)
+if maxes[end] < maxes[1]  # remember we're reversing
+    println("Div does not ⟹ stab")
+else
+    println("Div ⟹ stab")
 end
 
 plots

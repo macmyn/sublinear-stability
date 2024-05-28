@@ -1,7 +1,7 @@
 function get_interaction_matrix(p)
     d = Normal(p[:μ], p[:σ])
     A = rand(d, p[:N], p[:N])
-    A[diagind(A)] .= 0
+    A[diagind(A)] .= 1
     return A
 end
 
@@ -34,14 +34,35 @@ function get_initial_condition(p)
     return x0
 end
 
+function get_z(p)
+    if p[:z] == "r-fix"
+        return calculate_rfix(p)
+    elseif typeof(p[:z]) == Float64
+        return p[:z]
+    else
+        throw(ArgumentError("Incorrect input for p[:z]"))
+    end
+end
+
 function general_interactions(db, b, p, t)
     # @bp
-    bracket = sign(p[:alpha])*p[:z] .- sign(p[:alpha]) .* p[:r] .* (b.^p[:alpha]) - p[:A] * (b.^p[:beta])
-                                                                                  # A[diagind] = 0 so mat mul is fine
+    # bracket = sign(p[:alpha])*p[:z] .- sign(p[:alpha]) .* p[:r] .* (b.^p[:alpha]) - p[:A] * (b.^p[:beta])
+    #                                                                               # A[diagind] = 0 so mat mul is fine
+    # db .= b .* bracket
+
+    z_term = sign(p[:alpha]) .* p[:z]  # z is the 'r-fix' term if applicable
+    diag_term = sign(p[:alpha]) .* p[:r] .* (b.^p[:alpha])  # we're using r as A_ii
+    off_diag_mat = p[:A] - diagm(diag(p[:A]))  # set diag(A) to 0
+    off_diag_term = off_diag_mat * (b.^p[:beta])
+
+    bracket = (z_term .- diag_term .- off_diag_term)
+    # println(bracket)
+    # println(b)
     db .= b .* bracket
 end
 
 function get_eigvs(sol, p)
+    # println(sol)
     final_state = sol[end]
     final_state_b = final_state.^(p[:beta]-1)
     @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from final solution

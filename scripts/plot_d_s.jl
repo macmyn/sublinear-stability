@@ -1,15 +1,23 @@
-using Plots, CategoricalArrays, FileIO, LaTeXStrings
+using Plots, CategoricalArrays, FileIO, LaTeXStrings, DrWatson, Debugger
+gr()
 
 # maximums = FileIO.load("maximums_2.jld2")["d_s"]
+<<<<<<< HEAD
 file = datadir("init=const_r=1.0_z=1.0_μ=0.2_σ=0.02.jld2")
+=======
+file = datadir("init=const_r=1.0_z=1.0_μ=0.1_σ=0.02.jld2")
+>>>>>>> copying_ming
 maximums = FileIO.load(file)["data"]
 
-# println(maximums)
+# plot_type = "categorical" # "heatmap"
+plot_type="heatmap"
+# plots = plot(
+if plot_type == "categorical"
 global d = []
 for m in maximums
     println(m)
     maxes = m[3]
-    if any(isnan.(maxes))
+    if any(isnan.(maxes)) | any(maxes.>1)
         div_stab = missing
     elseif maxes[end] < maxes[1]  # remember we're reversing
         div_stab = "n"  # more species --> less stable
@@ -55,6 +63,7 @@ elseif plot_type == "heatmap"
         push!(diffs, diff)
     end
 
+<<<<<<< HEAD
     # coords = [[ds[1], ds[2]] for ds in maximums]
     # coords = mapreduce(permutedims, vcat, coords)
     xs = (-2.9:0.1:3)
@@ -62,6 +71,15 @@ elseif plot_type == "heatmap"
     diffs = reshape(diffs, size(ys)[1],size(xs)[1])
     # colours = cgrad([:blue,:red])
     h = heatmap(xs, ys,diffs, c=:balance,clims=(-1,1),nan_color=:transparent)
+=======
+    diffs = reshape(diffs, 60,60)
+    # coords = [[ds[1], ds[2]] for ds in maximums]
+    # coords = mapreduce(permutedims, vcat, coords)
+    xs = (-2.9:0.1:3)
+    ys = (-2.9:0.1:3)
+    colours = cgrad([:blue,:red])
+    h = heatmap(xs, ys,diffs, c=colours,clims=(-1,1),nan_color=:transparent)
+>>>>>>> copying_ming
 
 end
 # display(h)

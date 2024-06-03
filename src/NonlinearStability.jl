@@ -62,15 +62,9 @@ function general_interactions(db, b, p, t)
 end
 
 function get_eigvs(sol, p)
-<<<<<<< HEAD
     final_state = sol[end]
     final_state_b = final_state.^(p[:beta]-1)
-    println("got here")
-=======
-    # println(sol)
-    final_state = sol[end]
-    final_state_b = final_state.^(p[:beta]-1)
->>>>>>> copying_ming
+    # println("got here")
     @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from final solution
     J .*= -1 * p[:beta]
     J[diagind(J)] = -sign(p[:alpha]) * p[:r] *p[:alpha] .* final_state.^p[:alpha]

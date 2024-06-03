@@ -22,13 +22,8 @@ plots = plot(layout=(2,1))
 d_s = []
 
 all_params = Dict{Symbol,Any}(
-<<<<<<< HEAD
     :as => -3:0.1:3,
     :bs => 0:0.1:3,
-=======
-    :as => -2.9:0.1:3,
-    :bs => -2.9:0.1:3,
->>>>>>> copying_ming
     :z => 1.0,
     :r => 1.0,
     :N => [20,50,100],
@@ -38,18 +33,11 @@ all_params = Dict{Symbol,Any}(
     :init => "const",  # "uniform"/"const"/"solve"  
 )
 global MAXTIME=30
-<<<<<<< HEAD
 for a in tqdm(all_params[:as]), b in all_params[:bs]
     dicts = dict_list(all_params::Dict{Symbol,Any})
     maximums = []
     # for (i, p) in tqdm(Iterators.reverse(enumerate(dicts)))
     for (i,p) in Iterators.reverse(enumerate(dicts))
-=======
-for a in all_params[:as], b in all_params[:bs]
-    dicts = dict_list(all_params::Dict{Symbol,Any})
-    maximums = []
-    for (i, p) in tqdm(Iterators.reverse(enumerate(dicts)))
->>>>>>> copying_ming
         p[:alpha] = a
         p[:beta] = b
 

@@ -6,8 +6,11 @@
 data
 videos
 plots
-#notebooks
+!notebooks
+notebooks/*
+!notebooks/large_scale_data.ipynb
 _research
+#notebooks/science.*
 
 ################################################################################
 #                                    Julia                                     #

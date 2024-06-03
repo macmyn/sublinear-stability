@@ -11,19 +11,21 @@ alphas = 0:0.1:5
 betas = 0.0:0.1:5
 
 all_params = Dict{Symbol,Any}(
-    :z => 1,
-    # :r => 1,
+    :as => -3:0.1:3,
+    :bs => 0:0.1:3,
+    :z => 1.0,
+    :r => 1.0,
     :N => [20,50,100],
     :μ => 0.1,
     :σ => 0.05,
     :nothing => ""
 )
-
-for a in alphas, b in betas
-
+global MAXTIME=30
+for a in tqdm(all_params[:as]), b in all_params[:bs]
     dicts = dict_list(all_params::Dict{Symbol,Any})
     maximums = []
-    for (i, p) in Iterators.reverse(enumerate(dicts))
+    # for (i, p) in tqdm(Iterators.reverse(enumerate(dicts)))
+    for (i,p) in Iterators.reverse(enumerate(dicts))
         p[:alpha] = a
         p[:beta] = b
 
@@ -66,7 +68,7 @@ for a in alphas, b in betas
 end
 
 DrWatson._wsave(s::String, v::Vector) = FileIO.save(s, "data", v)
-
+DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict)
 name = savename(all_params, "jld2")
 safesave(datadir(name), d_s)
 println("Saved to $(datadir(name))")

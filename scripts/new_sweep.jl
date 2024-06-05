@@ -2,21 +2,6 @@ using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, 
 include(srcdir("NonlinearStability.jl"))
 gr()
 
-macro timeout(seconds, expr, fail)
-    quote
-        tsk = @task $expr
-        schedule(tsk)
-        Timer($seconds) do timer
-            istaskdone(tsk) || Base.throwto(tsk, InterruptException())
-        end
-        try
-            fetch(tsk)
-        catch _
-            $fail
-        end
-    end
-end
-
 plots = plot(layout=(2,1))
 
 d_s = []
@@ -32,7 +17,7 @@ all_params = Dict{Symbol,Any}(
     :tspan => (0.0, 100.0),
     :init => "const",  # "uniform"/"const"/"solve"  
 )
-global MAXTIME=30
+
 for a in tqdm(all_params[:as]), b in all_params[:bs]
     dicts = dict_list(all_params::Dict{Symbol,Any})
     maximums = []

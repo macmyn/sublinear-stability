@@ -63,6 +63,7 @@ end
 
 function get_eigvs(sol, p)
     final_state = sol[end]
+    # println(sol, "SOL")
     final_state_b = final_state.^(p[:beta]-1)
     # println("got here")
     @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from final solution

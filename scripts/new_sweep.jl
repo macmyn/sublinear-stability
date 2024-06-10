@@ -43,7 +43,6 @@ for a in tqdm(all_params[:as]), b in all_params[:bs]
         eigvs = get_eigvs(sol,p)
         
         push!(maximums, maximum(real(eigvs)))
-        # println(maximum(real(eigvs)))
 
         catch e
             showerror(stdout, e)
@@ -58,8 +57,6 @@ for a in tqdm(all_params[:as]), b in all_params[:bs]
 
 end
 
-DrWatson._wsave(s::String, v::Vector) = FileIO.save(s, "data", v)
-DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict)
 name = savename(all_params, "jld2")
 safesave(datadir(name), d_s)
 println("Saved to $(datadir(name))")

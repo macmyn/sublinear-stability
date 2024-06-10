@@ -1,8 +1,10 @@
-using Plots, CategoricalArrays, FileIO, LaTeXStrings, DrWatson, Debugger
+using Plots, CategoricalArrays, FileIO, LaTeXStrings, DrWatson, Debugger, Revise
+using Plots: heatmap
 gr()
 
 # maximums = FileIO.load("maximums_2.jld2")["d_s"]
-file = datadir("N=[20, 50, 100]_init=const_r=1.0_z=1.0_μ=0.2_σ=0.02.jld2")
+fname = "N=[20, 50, 100]_init=const_r=1.0_z=1.0_μ=0.2_σ=0.02.jld2"
+file = datadir(fname)
 maximums = FileIO.load(file)["data"]
 
 # plot_type = "categorical" # "heatmap"
@@ -73,5 +75,5 @@ end
 # display(h)
 # marker_map = Dict("y" => "red", "n" => "blue", NaN => "black")
 # colours = [marker_map[ds] for ds in d]
-
-
+heatmap!(xlabel=L"\alpha", ylabel=L"\beta")
+safesave(plotsdir(replace(fname, "jld2"=>"png")),h)

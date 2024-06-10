@@ -80,4 +80,6 @@ plot_font = "Computer Modern"
 default(fontfamily=plot_font,
 linewidth=2, framestyle=:box, label=nothing, grid=false)
 
-
+DrWatson._wsave(s::String, plot::Plots.Plot) = savefig(plot, s)
+DrWatson._wsave(s::String, v::Vector) = FileIO.save(s, "data", v)
+DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict, Tuple)

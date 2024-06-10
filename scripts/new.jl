@@ -1,5 +1,6 @@
 using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, Revise, Infiltrator, Debugger, Roots
 include(srcdir("NonlinearStability.jl"))
+pyplot()
 gr()
 using DelimitedFiles
 
@@ -14,17 +15,17 @@ maxes = []
 function main()
 
     all_params = Dict{Symbol,Any}(
-        :alpha => 0.5,
-        :beta => 0.5,
+        :alpha => -1,
+        :beta => 1,
         :z => 1,
         :r => 1.0,
         :N => [20,50,100],
         :μ => 0.2,
         :σ => 0.02,
-        :tspan => (0.0, 10.0),
+        :tspan => (0.0, 100.0),
         :init => "const",
         )
-        
+
         dicts = dict_list(all_params::Dict{Symbol,Any})
         for (i, p) in Iterators.reverse(enumerate(dicts))
             
@@ -55,19 +56,21 @@ function main()
             colors = palette(:tab10, length(all_params[:N]))
             label = "\$N = $(p[:N])\$"
 
-        plot_ts = 0:0.1:10
+        plot_ts = 0:0.1:p[:tspan][2]
 
-            # Time series        
+        # Time series        
         # lol julia starts at 1 so this doesn't do anything...
-        plot!(sol[2:end](plot_ts),subplot=1,label=nothing,color=colors[i],alpha=0.5)
+        plot!(sol[2:end](plot_ts),subplot=1,label=nothing,color=colors[i],alpha=0.5,markercolor =colors[i])
         plot!(plot_ts,sol(plot_ts)[1,:], subplot=1,label=label,color=colors[i], alpha=0.5)
-        # plot!(ylims=(0,0.3),subplot=1)
+        plot!(xlabel="Time", ylabel="Species abundance", subplot=1)
 
         # Eigs plot
         scatter!(eigvs,subplot=2,label=label,color=colors[i])
 
     end
+    plot!(dpi=500)
     plots
+    safesave(plotsdir(savename(all_params, "png")),plots)
 end
 # main()
 

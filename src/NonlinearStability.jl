@@ -61,18 +61,76 @@ function general_interactions(db, b, p, t)
     db .= b .* bracket
 end
 
-function get_eigvs(sol, p)
+function apple_pear_interactions(db, b, p, t)
+    diag_term = sign(p[:alpha]) * (p[:r1] .- p[:r] .* (b.^p[:alpha]))  # in report: r_ss - a_st N_s^alpha
+    
+    off_diag_mat = p[:A] - diagm(diag(p[:A]))  # set diag(A) to 0
+    # off_diag_term = sign(p[:beta]) * (p[:r2] .- off_diag_mat * (b.^p[:beta]))
+    off_diag_term = sign(p[:beta]) * ((p[:N]-1)*p[:r2] .- off_diag_mat * (b.^p[:beta]))
+    
+    bracket = diag_term .+ off_diag_term
+    
+    db .= b .* bracket
+end
+
+function get_eigvs_sublinear(sol, p)
     final_state = sol[end]
     # println(sol, "SOL")
     final_state_b = final_state.^(p[:beta]-1)
     # println("got here")
     @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from final solution
     J .*= -1 * p[:beta]
-    J[diagind(J)] = -sign(p[:alpha]) * p[:r] *p[:alpha] .* final_state.^p[:alpha]
+    # J[diagind(J)] = -sign(p[:alpha]) * p[:r] *abs(p[:alpha]) .* final_state.^p[:alpha]  # This was incorrect I believe
+    J[diagind(J)] = -sign(p[:alpha]) * p[:r] *p[:alpha] .* final_state.^p[:alpha]  
     eigvs = eigen(J).values
     return eigvs
 end
 
+
+function get_eigvs_apples_pears(sol, p)
+    final_state = sol[end]
+
+    final_state_b = final_state.^(p[:beta]-1)
+
+    @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from final solution
+    J .*= -1 * abs(p[:beta])
+    J[diagind(J)] = -1 * p[:r] * abs(p[:alpha]) .* final_state.^p[:alpha]
+
+    eigvs = eigen(J).values
+    return eigvs
+
+end
+
+function get_eigvs_PREVIOUS_WRONG(sol, p)
+    final_state = sol[end]
+    # println(sol, "SOL")
+    final_state_b = final_state.^(p[:beta]-1)
+    # println("got here")
+    @ein J[i,j] := p[:A][i,j]*final_state[i] * final_state_b[j]  # Build Jacobian from final solution
+    J .*= -1 * p[:beta]
+    J[diagind(J)] = -sign(p[:alpha]) * p[:r] *abs(p[:alpha]) .* final_state.^p[:alpha]  # This was incorrect I believe
+    # J[diagind(J)] = -sign(p[:alpha]) * p[:r] *p[:alpha] .* final_state.^p[:alpha]  
+    eigvs = eigen(J).values
+    return eigvs
+end
+
+    
+function vit_sublinear_equilibrium(p)
+    if p[:alpha] > 0
+        nstar = ((p[:z])/((p[:N]-1)*p[:μ]))^(1/p[:beta])
+    else
+        nstar = ((p[:r])/((p[:N]-1)*p[:μ]))^(1/(p[:beta] - p[:alpha]))
+    end
+    return nstar
+end
+
+function apples_pears_equilibrium(p)
+        # Estimated N_*
+        # zeta = p[:r2]/p[:N]
+        zeta = p[:r2]
+        nstar = (zeta/p[:μ])^(1/p[:beta])
+        return nstar
+end
 
 rng = MersenneTwister(42)
 

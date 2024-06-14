@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, Revise, Infiltrator, Debugger, Roots
+using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, Revise, Infiltrator, Debugger, Roots, ProgressBars
 include(srcdir("NonlinearStability.jl"))
 pyplot()
 gr()
@@ -21,12 +21,13 @@ function main()
 
     all_params = Dict{Symbol,Any}(
         :type => "apples_pears",
-        :alpha => -1,
+        :correction => true,
+        :alpha => 1,
         :beta => 1,
         :r => 1.0,
         :r1 => 1,
         :r2 => 0.1,
-        :N => [10,20,50,100,200,500,4000],
+        :N => [10,50,200],
         :μ => 0.2,
         :σ => 0.01,
         :tspan => (0.0, 100.0),
@@ -34,7 +35,7 @@ function main()
         )
 
         dicts = dict_list(all_params::Dict{Symbol,Any})
-        for (i, p) in Iterators.reverse(enumerate(dicts))
+        for (i, p) in tqdm(Iterators.reverse(enumerate(dicts)))
         # for (i, p) in enumerate(dicts)
             
             # Set interation matrix (normal with zeros on diags)
@@ -61,29 +62,31 @@ function main()
             colors = palette(:tab10, length(all_params[:N]))
             label = "\$N = $(p[:N])\$"
 
-        plot_ts = 0:0.1:p[:tspan][2]
+            plot_ts = 0:0.1:p[:tspan][2]
 
-        # Time series        
-        # lol julia starts at 1 so this doesn't do anything...
-        plot!(sol[2:end](plot_ts),subplot=1,label=nothing,color=colors[i],alpha=0.2,markercolor =colors[i])
-        plot!(plot_ts,sol(plot_ts)[1,:], subplot=1,label=label,color=colors[i], alpha=0.2)
-        plot!(xlabel="Time", ylabel="Species abundance", subplot=1)
+            # Time series        
+            # lol julia starts at 1 so this doesn't do anything...
+            plot!(sol[2:end](plot_ts),subplot=1,label=nothing,color=colors[i],alpha=0.2,markercolor =colors[i])
+            plot!(plot_ts,sol(plot_ts)[1,:], subplot=1,label=label,color=colors[i], alpha=0.4)
+            plot!(xlabel="Time", ylabel="Species abundance", subplot=1)
 
-        # Eigs plot
-        scatter!(eigvs,subplot=2,label=label,color=colors[i])
-        
-        nstar = apples_pears_equilibrium(p)
-        hline!([nstar], subplot=1, color=colors[i])
+            # Eigs plot
+            scatter!(eigvs,subplot=2,label=label,color=colors[i])
+            
+            nstar = apples_pears_equilibrium(p, p[:correction])
+            nstar_NOCORREC = apples_pears_equilibrium(p,false)
+            hline!([nstar], subplot=1, color=colors[i])
+            hline!([nstar_NOCORREC], subplot=1, color=:black)
 
-        # Estimated λ_m
-        global lambda_m = -1 * p[:r] * abs(p[:alpha]) * nstar^p[:alpha] + p[:μ]*abs(p[:beta])*nstar^p[:beta] + p[:σ]*nstar^p[:beta]*sqrt(p[:N])
-        vline!([lambda_m], subplot=2, color=colors[i])
+            # Estimated λ_m
+            global lambda_m = -1 * p[:r] * abs(p[:alpha]) * nstar^p[:alpha] + p[:μ]*abs(p[:beta])*nstar^p[:beta] + p[:σ]*nstar^p[:beta]*sqrt(p[:N])
+            vline!([lambda_m], subplot=2, color=colors[i])
 
-        # Outlier
-        global lambda_o = -1 * p[:r] * abs(p[:alpha]) *nstar^p[:alpha] - abs(p[:beta]) * p[:μ] * nstar^p[:beta] *(p[:N]-1)
-        vline!([lambda_o], subplot=2, color=colors[i], linestyle=:dash)
+            # Outlier
+            global lambda_o = -1 * p[:r] * abs(p[:alpha]) *nstar^p[:alpha] - abs(p[:beta]) * p[:μ] * nstar^p[:beta] *(p[:N]-1)
+            vline!([lambda_o], subplot=2, color=colors[i], linestyle=:dash)
 
-    end
+        end
     # plot!(xlim=(-6,-4),subplot=2)
     # plot!(xlim=(-0.8,0),subplot=2)
     plot!(ylim=(-1,1),subplot=2)

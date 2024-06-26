@@ -1,8 +1,9 @@
 function get_interaction_matrix(p)
     d = Normal(p[:μ], p[:σ])
+    # d = absHalfNormal()
     A = rand(d, p[:N], p[:N])
     A[diagind(A)] .= 1
-    return A
+    return abs.(A)
 end
 
 function calculate_rfix(p)
@@ -124,20 +125,40 @@ function vit_sublinear_equilibrium(p)
     return nstar
 end
 
-function apples_pears_equilibrium(p)
+function apples_pears_equilibrium(p, correction)
         # Estimated N_*
         # zeta = p[:r2]/p[:N]
         zeta = p[:r2]
         nstar = (zeta/p[:μ])^(1/p[:beta])
+
+        if correction
+            A_numerator = sign(p[:alpha]) * (p[:r1] - p[:r]*(p[:r2]/p[:μ])^(p[:alpha]/p[:beta]))
+            A_denominator = abs(p[:beta]) * p[:μ]
+            correction_term = (A_numerator/A_denominator) * (1/(p[:N]-1))
+            nstar = nstar + correction_term
+        end
         return nstar
+end
+
+function vit_sublinear_eigs(p)
+    if p[:alpha] > 0
+        term1 = -p[:r]*p[:alpha]*(p[:z]/((p[:N]-1)*p[:μ]))^(p[:alpha]/p[:beta])
+        term2 = ((p[:z]*p[:beta])/((p[:N]-1)*p[:μ]))*(p[:μ] + sign(p[:beta])*p[:σ]*sqrt(p[:N]))
+        return term1 + term2
+    else
+        factor = (p[:r]/((p[:N]-1)*p[:μ]))^(p[:alpha]/(p[:beta]-p[:alpha]))
+        main_term = p[:r]*p[:alpha]+(p[:r]*p[:beta]*(p[:μ]+sign(p[:beta])*p[:σ]*sqrt(p[:N])))/((p[:N]-1)*p[:μ])
+        return factor *main_term
+    
+    end
 end
 
 rng = MersenneTwister(42)
 
-plot_font = "Computer Modern"
-default(fontfamily=plot_font,
-linewidth=2, framestyle=:box, label=nothing, grid=false)
+# plot_font = "Computer Modern"
+# default(fontfamily=plot_font,
+# linewidth=2, framestyle=:box, label=nothing, grid=false)
 
-DrWatson._wsave(s::String, plot::Plots.Plot) = savefig(plot, s)
+# DrWatson._wsave(s::String, plot::Plots.Plot) = savefig(plot, s)
 DrWatson._wsave(s::String, v::Vector) = FileIO.save(s, "data", v)
 DrWatson.default_allowed(::Dict) = (Real, String, Vector, Dict, Tuple)

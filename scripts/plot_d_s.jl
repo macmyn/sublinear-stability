@@ -3,9 +3,14 @@ using Plots: heatmap
 gr()
 
 # maximums = FileIO.load("maximums_2.jld2")["d_s"]
-fname = "N=[20, 50, 100]_init=const_r=1.0_z=1.0_μ=0.2_σ=0.02.jld2"
+fname = "N=[10, 20]_init=const_r=1.0_tspan=(0.0, 100.0)_z=1.0_μ=0.2_σ=0.02.jld2"
 file = datadir(fname)
 maximums = FileIO.load(file)["data"]
+
+plot_font = "Computer Modern"
+plot_font = "Computer Modern"
+default(fontfamily=plot_font,
+        linewidth=2, framestyle=:box, label=nothing, grid=false)
 
 # plot_type = "categorical" # "heatmap"
 plot_type="heatmap"
@@ -63,17 +68,27 @@ elseif plot_type == "heatmap"
 
     # coords = [[ds[1], ds[2]] for ds in maximums]
     # coords = mapreduce(permutedims, vcat, coords)
-    xs = (-3:0.1:3)
-    ys = (0:0.1:3)
+    # xs = (-3:0.1:3)
+    # ys = (0:0.1:3)
+    # xs = 0:0.4:3.2
+    # ys = 0:0.4:7.6
+    xs = -5:0.2:5
+    ys = 0:0.2:5
     println(size(diffs))
     println(size(xs), size(ys))
     diffs = reshape(diffs, size(ys)[1],size(xs)[1])
     # colours = cgrad([:blue,:red])
-    h = heatmap(xs, ys,diffs, c=:balance,clims=(-1,1),nan_color=:transparent)
+    h = heatmap(xs, ys,diffs, c=:auto,clims=(-0.6,0.6),nan_color=:transparent)
+    # h = heatmap(xs, ys,diffs, c=:auto,nan_color=:transparent)
 
 end
 # display(h)
 # marker_map = Dict("y" => "red", "n" => "blue", NaN => "black")
 # colours = [marker_map[ds] for ds in d]
 heatmap!(xlabel=L"\alpha", ylabel=L"\beta")
-safesave(plotsdir(replace(fname, "jld2"=>"png")),h)
+plot!(size=(400,300))
+sname = plotsdir(replace(fname, "jld2"=>"png"))
+println(sname)
+# plot!(dpi=500)
+Plots.savefig(h,plotsdir("heatmap.pdf"))
+h

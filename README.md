@@ -18,6 +18,13 @@ This repo was originally a clone of the [repo](https://zenodo.org/records/104761
     - This previews each plot you produce in the Julia Plots interface inside a VS Code window
 
 
+Once you've done Step 2. for the first time, all you need to do is run:
+```
+> julia
+julia> ]
+pkg> activate .
+```
+
 ### Files
 - `DrWatson` splits files into `src` and `scripts`. Source code (functions etc) is in `src`; you don't run these directly. Scripts are for running things. 
 

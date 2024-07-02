@@ -4,7 +4,6 @@ pyplot()
 gr()
 using DelimitedFiles
 using StatsPlots
-# global AA = readdlm("a.txt")
 
 MAXTIME = 100
 
@@ -39,13 +38,7 @@ function main()
             # Define problem and get solution
             prob = ODEProblem(general_interactions, x0, p[:tspan], params,)
             sol = solve(prob, AutoTsit5(Rosenbrock23()))
-            # sol = @timeout MAXTIME begin
-            #     sol = solve(prob, AutoTsit5(Rosenbrock23()))
-            # println(sol)
-            # end NaN
-            # sol = @timeout MAXTIME begin
-            #     sol = solve(prob, Tsit5())
-            # end NaN
+
             # Jacobian and values
             println("\n\n\nDONE HERE")
             eigvs = get_eigvs_sublinear(sol, p)
@@ -59,7 +52,6 @@ function main()
         plot_ts = 0:0.1:p[:tspan][2]
 
         # Time series        
-        # lol julia starts at 1 so this doesn't do anything...
         plot!(sol[2:end](plot_ts),subplot=1,label=nothing,color=colors[i],alpha=0.5,markercolor =colors[i])
         plot!(plot_ts,sol(plot_ts)[1,:], subplot=1,label=label,color=colors[i], alpha=0.5)
         plot!(xlabel="Time", ylabel="Species abundance", subplot=1)
@@ -81,7 +73,6 @@ function main()
     plots
     # safesave(plotsdir(savename(all_params, "png")),plots)
 end
-# main()
 
 # Debugger.@enter main()
 main()

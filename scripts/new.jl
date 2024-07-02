@@ -15,14 +15,14 @@ maxes = []
 function main()
 
     all_params = Dict{Symbol,Any}(
-        :alpha => 1,
-        :beta => 2,
+        :alpha => 4,
+        :beta => 1,
         :z => 1,
         :r => 1.0,
-        :N => [50,100,500],
+        :N => [10,20],
         :μ => 0.2,
-        :σ => 0.01,
-        :tspan => (0.0, 100.0),
+        :σ => 0.02,
+        :tspan => (0.0, 150.0),
         :init => "const",
         )
 
@@ -71,8 +71,13 @@ function main()
         nstar = vit_sublinear_equilibrium(p)
         hline!([nstar],subplot=1,color=colors[i],alpha=0.5)
 
+        pred_eig = vit_sublinear_eigs(p)
+        vline!([pred_eig],subplot=2,color=colors[i],alpha=0.5)
+        println(pred_eig)
+
     end
     plot!(dpi=500)
+    # plot!(xlim=(-0.5,0.1),subplot=2)
     plots
     # safesave(plotsdir(savename(all_params, "png")),plots)
 end

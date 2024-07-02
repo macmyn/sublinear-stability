@@ -1,17 +1,21 @@
-using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, FileIO, JLD2, ProgressBars
+using OrdinaryDiffEq, Plots, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, FileIO, JLD2, ProgressBars, LaTeXStrings
 include(srcdir("NonlinearStability.jl"))
 gr()
 
 plots = plot(layout=(2,1))
+plot_font = "Computer Modern"
+plot_font = "Computer Modern"
+default(fontfamily=plot_font,
+        linewidth=2, framestyle=:box, label=nothing, grid=false)
 
 d_s = []
 
 all_params = Dict{Symbol,Any}(
-    :as => -3:0.1:3,
-    :bs => 0:0.1:3,
+    :as => -5:0.2:5,
+    :bs => 0:0.2:5,
     :z => 1.0,
     :r => 1.0,
-    :N => [20,50,100],
+    :N => [10,20],
     :μ => 0.2,
     :σ => 0.02,
     :tspan => (0.0, 100.0),
@@ -40,7 +44,7 @@ for a in tqdm(all_params[:as]), b in all_params[:bs]
             # end NaN
         sol = solve(prob, Tsit5())
         # Jacobian and eigenvalues
-        eigvs = get_eigvs(sol,p)
+        eigvs = get_eigvs_sublinear(sol,p)
         
         push!(maximums, maximum(real(eigvs)))
 

@@ -16,3 +16,12 @@ This repo was originally a clone of the [repo](https://zenodo.org/records/104761
 3. (Optional) Set up Julia in VS Code for maximal efficiency:
     - Install Julia extension for VS code
     - This previews each plot you produce in the Julia Plots interface inside a VS Code window
+
+
+### Files
+- `DrWatson` splits files into `src` and `scripts`. Source code (functions etc) is in `src`; you don't run these directly. Scripts are for running things. Compare the git history or compare to the paper's original repo to see which are the original ones if it's not clear otherwise.
+- `src/NonlinearStability.jl`: all the dirty functions etc for simulating, finding Jacobians, etc. Use the line `include("NonlinearStability.jl")` at the top of each script you want to use
+- `scripts/simulate_single_community.jl`: run a single community with params (including numbers of species) defined in the `p` dictionary. The functions are to be found in `NonlinearStability.jl`
+- `scripts/sweep.jl`: simulates a number of communities for a range of alpha and beta; saves these to `datadir`
+- `scripts/plot_d_s.jl`: plots the data above (used for the heatmap in the write-up)
+- `scripts/paper`: various plots that are (or aren't) used in the write-up according to which folder they're in. Should all be self-contained (i.e. don't need data)

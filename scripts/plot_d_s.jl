@@ -3,7 +3,7 @@ using Plots: heatmap
 gr()
 
 # maximums = FileIO.load("maximums_2.jld2")["d_s"]
-fname = "N=[10, 20]_init=const_r=1.0_tspan=(0.0, 100.0)_z=1.0_μ=0.2_σ=0.02.jld2"
+fname = "N=[10, 20]_init=const_r=1.0_tspan=(0.0, 100.0)_z=1.0_μ=0.0_σ=0.01.jld2"
 file = datadir(fname)
 maximums = FileIO.load(file)["data"]
 
@@ -72,8 +72,8 @@ elseif plot_type == "heatmap"
     # ys = (0:0.1:3)
     # xs = 0:0.4:3.2
     # ys = 0:0.4:7.6
-    xs = -5:0.2:5
-    ys = 0:0.2:5
+    xs = -5:0.5:5
+    ys = 0:0.5:5
     println(size(diffs))
     println(size(xs), size(ys))
     diffs = reshape(diffs, size(ys)[1],size(xs)[1])
@@ -86,9 +86,16 @@ end
 # marker_map = Dict("y" => "red", "n" => "blue", NaN => "black")
 # colours = [marker_map[ds] for ds in d]
 heatmap!(xlabel=L"\alpha", ylabel=L"\beta")
-plot!(size=(400,300))
+plot!(size=(1200,900))
 sname = plotsdir(replace(fname, "jld2"=>"png"))
 println(sname)
+FONT_SIZE = 24
+plot!(yguidefontsize=FONT_SIZE,
+      xguidefontsize=FONT_SIZE,
+      xtickfontsize=FONT_SIZE,
+      ytickfontsize=FONT_SIZE,
+      left_margin=10Plots.mm,
+      right_margin=15Plots.mm)
 # plot!(dpi=500)
-Plots.savefig(h,plotsdir("heatmap.pdf"))
+# Plots.savefig(h,plotsdir("heatmap.png"),)
 h

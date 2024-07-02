@@ -1,4 +1,4 @@
-using OrdinaryDiffEq, PyPlot, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, Revise, Infiltrator, Debugger, Roots
+using OrdinaryDiffEq, PyPlot, LinearAlgebra, Random, Distributions, ForwardDiff, OMEinsum, DrWatson, ColorSchemes, Revise, Infiltrator, Debugger, Roots, PyCall
 include(srcdir("NonlinearStability.jl"))
 # pyplot()
 # gr()
@@ -6,6 +6,8 @@ using DelimitedFiles
 # using StatsPlots
 # pgfplots()
 # global AA = readdlm("a.txt")
+
+@pyimport matplotlib.animation as anim
 
 MAXTIME = 100
 plt.rc("text", usetex=true)
@@ -16,19 +18,23 @@ rc("ytick", labelsize="10")
 
 # rc("legend", size="10")
 # rc("legendfontsize", size="10")
-fig, axs = plt.subplots(1,1,figsize=(5,1.5))
+fig, axs = plt.subplots(1,1,figsize=(4,1.5))
 # plots = plot(layout=(2,1),size=(400,290))
 FS = 10
-SAVE = true
+SAVE = false
 # plot!(xtickfontsize=FS,ytickfontsize=FS,xguidefontsize=FS,yguidefontsize=FS,legendfontsize=FS,subplot=1)
 # plot!(xtickfontsize=FS,ytickfontsize=FS,xguidefontsize=FS,yguidefontsize=FS,legendfontsize=FS,subplot=2)
 maxes = []
 cm = get_cmap(:tab10)
 colorrange = (0:9)./10
-function main()
-    for alpha in [-1,-0.5,1]
+alphas = [-1,-0.8,-0.6,-0.4,-0.2,0.2,0.4,0.6,1,1.2,1.4,1.6,1.8,2.0]
+# alphas = [-1,1.6,1.8,2.0]
+function make_frame(k)
+    if k >= length(alphas)
+        nothing
+    else
     all_params = Dict{Symbol,Any}(
-        :alpha => alpha,
+        :alpha => alphas[k+1],
         :beta => 1,
         :z => 1,
         :r => 1,
@@ -39,6 +45,8 @@ function main()
         :init => "const",
         :type => "sublinear_to_may"
         )
+
+        axs.clear()
 
         dicts = dict_list(all_params::Dict{Symbol,Any})
         for (i, p) in Iterators.reverse(enumerate(dicts))
@@ -94,9 +102,10 @@ function main()
 
         # Eigs plot
         # scatter!(eigvs,subplot=2,color=colors[i])
-        for j in eachindex(eigvs)
-        axs.scatter(real(eigvs[j]),imag(eigvs[j]),color=cm(colorrange[i]),marker=".",edgecolor="k",linewidth=0.1)
-        end
+        # for j in eachindex(eigvs)
+        # axs.scatter(real(eigvs[j]),imag(eigvs[j]),color=cm(colorrange[i]),marker=".",edgecolor="k",linewidth=0.1,label=p[:N])
+        # end
+        axs.scatter(real.(eigvs),imag.(eigvs),color=cm(colorrange[i]),marker=".",edgecolor="k",linewidth=0.1,label="N="*string(p[:N]))
         # Calculate N_* 
         nstar = vit_sublinear_equilibrium(p)
         # axs[1].axhline([nstar],color=cm(colorrange[i]),alpha=0.5)
@@ -105,7 +114,7 @@ function main()
         # axs.axvline([pred_eig],color=cm(colorrange[i]),alpha=0.5)
         println(pred_eig)
 
-        
+    end
     end
 
     plt.tight_layout()
@@ -114,15 +123,27 @@ function main()
     # plot!(dpi=500)
     # plot!(xlim=(-0.5,0.1),subplot=2)
     plt.xlim(-4,0)
-end
-    if SAVE 
-        savefig(plotsdir("sublinear_to_may.pdf"),bbox_inches="tight")
+    plt.ylim(-0.01,0.01)
+    plt.xlabel("Stability")
+    # plt.legend(bbox_to_anchor=(1.4, 1.1,2,2),mode="expand",fontsize=15)
+    plt.tight_layout()
+    if k == 1
+        plt.savefig("frame1.png",bbox_inches="tight",dpi=500)
     end
+end
+    # display(fig)
+    # if SAVE 
+    #     savefig(plotsdir("sublinear_to_may.pdf"),bbox_inches="tight")
+    # end
     # axs.set_xscale("symlog")
     # plt.ylim(-0.005,0.005)
     # plots
-end
+
 # main()
+function main()
+    myanim = anim.FuncAnimation(fig, make_frame, frames=size(alphas,1)+5,interval=800)
+    myanim.save("test.gif",dpi=500)
+end
 
 # Debugger.@enter main()
 main()

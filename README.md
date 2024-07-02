@@ -19,7 +19,9 @@ This repo was originally a clone of the [repo](https://zenodo.org/records/104761
 
 
 ### Files
-- `DrWatson` splits files into `src` and `scripts`. Source code (functions etc) is in `src`; you don't run these directly. Scripts are for running things. Compare the git history or compare to the paper's original repo to see which are the original ones if it's not clear otherwise.
+- `DrWatson` splits files into `src` and `scripts`. Source code (functions etc) is in `src`; you don't run these directly. Scripts are for running things. 
+
+Here I'm listing the important files that I made. Compare the git history or compare to the paper's original repo to see which files are used in the original paper.
 - `src/NonlinearStability.jl`: all the dirty functions etc for simulating, finding Jacobians, etc. Use the line `include("NonlinearStability.jl")` at the top of each script you want to use
 - `scripts/simulate_single_community.jl`: run a single community with params (including numbers of species) defined in the `p` dictionary. The functions are to be found in `NonlinearStability.jl`
 - `scripts/sweep.jl`: simulates a number of communities for a range of alpha and beta; saves these to `datadir`

@@ -2,6 +2,8 @@ using PyPlot, Revise, DrWatson, OMEinsum, Random,LaTeXStrings, ForwardDiff
 
 include(srcdir("NonlinearStability.jl"))
 
+## USED IN PAPER showing behaviour of growth functions near 0
+
 plt.rc("text", usetex=true)
 rc("font", family="serif", weight="normal", size="18")
 rc("axes", labelsize="10")

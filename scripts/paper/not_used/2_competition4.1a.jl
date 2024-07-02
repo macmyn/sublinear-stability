@@ -1,5 +1,5 @@
 using DifferentialEquations, Revise, DrWatson, OMEinsum, Random, PyPlot, Distributions
-
+## NOT used in paper
 plt.rc("text", usetex=true)
 
 function noisy_competition(y, p, t)

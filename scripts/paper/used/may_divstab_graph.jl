@@ -1,5 +1,8 @@
 using Distributions, LinearAlgebra, LaTeXStrings, PyPlot, PyCall, ColorSchemes, DrWatson
 import Plots.palette
+
+## USED IN PAPER for May div/stab scaling (randomly samples matrix elements)
+
 plt.rc("text", usetex=true)
 PyCall.PyDict(plt."rcParams")["text.latex.preamble"] = "\\usepackage{amsmath}"# \\usepackage{underset}"
 

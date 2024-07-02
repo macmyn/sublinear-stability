@@ -27,3 +27,5 @@ Here I'm listing the important files that I made. Compare the git history or com
 - `scripts/sweep.jl`: simulates a number of communities for a range of alpha and beta; saves these to `datadir`
 - `scripts/plot_d_s.jl`: plots the data above (used for the heatmap in the write-up)
 - `scripts/paper`: various plots that are (or aren't) used in the write-up according to which folder they're in. Should all be self-contained (i.e. don't need data)
+- `scripts/apples_pears.jl`: simulating with constants in both inter and intra terms
+- `scripts/apples_pears(_lambda)_sweep`: create the butterfly/fish-looking plot and the eigenvalue plot for the model above

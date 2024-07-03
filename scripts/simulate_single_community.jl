@@ -57,14 +57,14 @@ function main()
         plot!(xlabel="Time", ylabel="Species abundance", subplot=1)
 
         # Eigs plot
-        scatter!(eigvs,subplot=2,label=label,color=colors[i])
+        scatter!(eigvs,subplot=2,label=nothing,color=colors[i])
         
         # Calculate N_* 
         nstar = vit_sublinear_equilibrium(p)
-        hline!([nstar],subplot=1,color=colors[i],alpha=0.5)
+        hline!([nstar],subplot=1,label=nothing,color=colors[i],alpha=0.5)
 
         pred_eig = vit_sublinear_eigs(p)
-        vline!([pred_eig],subplot=2,color=colors[i],alpha=0.5)
+        vline!([pred_eig],subplot=2,label=nothing,color=colors[i],alpha=0.5)
         println(pred_eig)
 
     end
